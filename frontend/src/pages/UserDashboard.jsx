@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Stethoscope, FileText, Info } from 'lucide-react';
+import { Calendar, Stethoscope, FileText, Info, Activity } from 'lucide-react';
 
 export default function UserDashboard() {
     const [activeTab, setActiveTab] = useState('schedules');
     const [doctors, setDoctors] = useState([]);
     const [schedules, setSchedules] = useState([]);
 
+    // Fetch from the mocked backend
     useEffect(() => {
-        // Initial static fetch mock
-        setDoctors([
-            { id: 'd1', name: 'Dr. John Smith', specialty: 'Anesthesiologist', availableDays: 'Mon, Wed, Fri' },
-            { id: 'd2', name: 'Dr. Sarah Connor', specialty: 'Surgeon', availableDays: 'Tue, Thu' }
-        ]);
-        setSchedules([
-            {
-                id: 's1', date: '2026-03-01T10:00', otId: 'OT-1', doctorIds: 'Dr. Sarah Connor',
-                patientId: 'Michael Doe', surgeryType: 'Appendectomy', status: 'Scheduled'
-            }
-        ]);
+        fetch('http://localhost:5000/api/doctors')
+            .then(res => res.json())
+            .then(data => setDoctors(data))
+            .catch(e => console.error(e));
+
+        fetch('http://localhost:5000/api/schedules')
+            .then(res => res.json())
+            .then(data => setSchedules(data))
+            .catch(e => console.error(e));
     }, []);
+
+    const statusColors = {
+        'Scheduled': 'bg-blue-100 text-blue-800 border-blue-200',
+        'Emergency': 'bg-red-100 text-red-800 border-red-200',
+        'Postponed': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        'Completed': 'bg-green-100 text-green-800 border-green-200',
+        'Cancelled': 'bg-gray-100 text-gray-800 border-gray-200',
+    };
 
     return (
         <div className="flex flex-col md:flex-row gap-6 h-[85vh]">
@@ -38,27 +45,43 @@ export default function UserDashboard() {
 
                 {/* Schedules Section */}
                 {activeTab === 'schedules' && (
-                    <div className="animate-fade-in">
+                    <div className="animate-fade-in pb-12">
                         <h3 className="text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-                            <Calendar className="text-green-600" /> Surgical Information
+                            <Activity className="text-green-600" /> Surgical Information Viewer
                         </h3>
                         <div className="bg-green-50/50 p-6 rounded-xl border border-green-100 mb-6 shadow-sm">
-                            <p className="flex items-center gap-2 text-green-800"><Info size={18} /> View upcoming operations and surgical info based on your assignments.</p>
+                            <p className="flex items-center gap-2 text-green-800"><Info size={18} /> View upcoming operations, medical prerequisites, and assigned teams.</p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {schedules.map(s => (
-                                <div key={s.id} className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                                <div key={s.id} className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                                    <div className={`absolute top-0 left-0 w-1.5 h-full ${s.status === 'Emergency' ? 'bg-red-500' : 'bg-green-500'}`}></div>
+
                                     <div className="flex justify-between items-start border-b pb-4 mb-4">
                                         <div>
                                             <h4 className="font-bold text-lg text-gray-900">{s.surgeryType}</h4>
-                                            <p className="text-sm text-gray-500">{new Date(s.date).toLocaleString()} • {s.otId}</p>
+                                            <p className="text-sm font-semibold text-gray-500">{new Date(s.date).toLocaleString()} • {s.otId}</p>
                                         </div>
-                                        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-200">{s.status}</span>
+                                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColors[s.status] || 'bg-gray-100'}`}>{s.status}</span>
                                     </div>
-                                    <div className="space-y-2 text-sm text-gray-600">
-                                        <p><span className="font-medium text-gray-700">Surgeon:</span> {s.doctorIds}</p>
-                                        <p><span className="font-medium text-gray-700">Patient:</span> {s.patientId}</p>
-                                        <p><span className="font-medium text-gray-700">Remarks:</span> No special remarks yet.</p>
+
+                                    <div className="space-y-3 text-sm text-gray-600">
+                                        <p><span className="font-medium text-gray-500 block uppercase text-[10px] tracking-wider">Patient ID</span> <span className="text-gray-800">{s.patientId}</span></p>
+                                        <div className="bg-gray-50 p-3 rounded-lg border">
+                                            <p className="font-medium text-gray-500 uppercase text-[10px] tracking-wider mb-1">Medical Team</p>
+                                            <p><strong>Primary Surgeon:</strong> {s.doctorIds}</p>
+                                            {s.medicName && <p><strong>Medic/Assistant:</strong> {s.medicName}</p>}
+                                            <p><strong>Anesthesia:</strong> {s.anesthesiologistName} ({s.anesthesiaType})</p>
+                                            {s.nurses && <p><strong>Nurses:</strong> {s.nurses}</p>}
+                                        </div>
+
+                                        <div className="space-y-1 mt-2">
+                                            <p><span className="font-medium text-gray-700">Pre/Post Events:</span> {s.prePostEvents || 'None recorded'}</p>
+                                            <p><span className="font-medium text-gray-700">Drugs & Materials:</span> {s.drugsAndMaterials || 'Standard toolkit'}</p>
+                                            <p><span className="font-medium text-gray-700">Reports:</span> {s.surgicalReports || 'Not attached'}</p>
+                                            <p><span className="font-medium text-gray-700">Remarks:</span> {s.remarks || 'None'}</p>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -71,19 +94,20 @@ export default function UserDashboard() {
                 {activeTab === 'doctors' && (
                     <div className="animate-fade-in">
                         <h3 className="text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-                            <Stethoscope className="text-green-600" /> Doctor Details
+                            <Stethoscope className="text-green-600" /> Reference Directory
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {doctors.map(d => (
-                                <div key={d.id} className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:-translate-y-1 transition-transform">
+                                <div key={d.id} className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:-translate-y-1 transition-transform relative">
+                                    <div className="absolute top-4 right-4 bg-indigo-50 text-indigo-700 text-[10px] uppercase font-bold px-2 py-1 rounded">Medical Staff</div>
                                     <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-xl mb-4">
-                                        {d.name.charAt(4)}
+                                        {d.name.includes(' ') ? d.name.split(' ')[1]?.charAt(0) : d.name.charAt(0)}
                                     </div>
                                     <h4 className="font-bold text-lg text-gray-900">{d.name}</h4>
                                     <p className="text-indigo-600 font-medium text-sm mb-4">{d.specialty}</p>
                                     <p className="text-sm text-gray-600 border-t pt-4">
-                                        <span className="font-semibold block mb-1">Available Days:</span>
-                                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-md">{d.availableDays}</span>
+                                        <span className="font-semibold block mb-1 text-gray-400 uppercase tracking-widest text-[10px]">Availability</span>
+                                        <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-md">{Array.isArray(d.availableDays) ? d.availableDays.join(', ') : d.availableDays}</span>
                                     </p>
                                 </div>
                             ))}

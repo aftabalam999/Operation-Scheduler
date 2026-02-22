@@ -3,11 +3,17 @@ const cors = require('cors');
 const logger = require('./logger');
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin 
-// A complete implementation would require a serviceAccountKey.json from Firebase
-// admin.initializeApp({
-//   credential: admin.credential.cert(require('./serviceAccountKey.json'))
-// });
+// ---------------------------------------------------------
+// FIREBASE INTEGRATION
+// Note: To fully activate, provide serviceAccountKey.json
+// ---------------------------------------------------------
+/*
+const serviceAccount = require('./serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+const dbFirestore = admin.firestore();
+*/
 
 const app = express();
 app.use(cors());
@@ -26,6 +32,7 @@ app.get('/api/health', (req, res) => {
 
 // Mock database to demonstrate modular data storage structure matching Firestore
 let db = {
+    users: [],
     doctors: [
         { id: 'd1', name: 'Dr. John Smith', specialty: 'Anesthesiologist', availableDays: ['Monday', 'Wednesday', 'Friday'] },
         { id: 'd2', name: 'Dr. Sarah Connor', specialty: 'General Surgeon', availableDays: ['Tuesday', 'Thursday'] },
@@ -38,19 +45,30 @@ let db = {
             id: 's1',
             date: '2026-03-01T10:00',
             otId: 'OT-1',
-            doctorIds: ['d2'],
-            medicId: 'd1',
+            doctorIds: 'Dr. Sarah Connor',
+            medicName: 'Dr. Alan Grant',
+            anesthesiaType: 'General',
             anesthesiologistName: 'Dr. John Smith',
-            patientId: 'p1',
+            nurses: 'Nurse Joy, Nurse Ratched',
+            patientId: 'Michael Doe',
             status: 'Scheduled',
             surgeryType: 'Appendectomy',
             remarks: 'Standard procedure',
-            equipmentRequired: ['Standard Surgical Kit']
+            drugsAndMaterials: 'Standard Surgical Kit, Propofol',
+            prePostEvents: 'Pre-op vital signs stable.',
+            surgicalReports: 'Pending operation...'
         }
     ],
     logs: []
 };
 
+// 0. Auth Endpoint
+app.post('/api/auth/register', (req, res) => {
+    const newUser = { id: `u${Date.now()}`, role: 'user', ...req.body };
+    logger.info(`User registered: ${newUser.email}`);
+    db.users.push(newUser);
+    res.status(201).json(newUser);
+});
 
 // 1. Doctors Endpoint
 app.get('/api/doctors', (req, res) => {
@@ -86,7 +104,7 @@ app.get('/api/schedules', (req, res) => {
 });
 
 app.post('/api/schedules', (req, res) => {
-    const newSchedule = { id: `s${Date.now()}`, status: 'Scheduled', ...req.body };
+    const newSchedule = { id: `s${Date.now()}`, ...req.body };
     logger.info(`Adding new schedule for patient: ${newSchedule.patientId}`);
     db.schedules.push(newSchedule);
     res.status(201).json(newSchedule);
@@ -112,9 +130,14 @@ app.delete('/api/schedules/:id', (req, res) => {
     res.sendStatus(204);
 });
 
-// System logs route for administrators
+// 4. Activity Logs for Administrators
 app.get('/api/logs', (req, res) => {
-    res.json(db.logs);
+    logger.info('Fetching system activity logs');
+    res.json([
+        { id: 1, text: "OT-1 Requesting additional anesthesia materials.", time: "1 hour ago", type: "event" },
+        { id: 2, text: "Dr. Sarah Connor updated surgical report for Michael Doe.", time: "3 hours ago", type: "update" },
+        { id: 3, text: "OT-3 Emergency surgery assigned.", time: "5 hours ago", type: "emergency" }
+    ]);
 });
 
 const PORT = process.env.PORT || 5000;

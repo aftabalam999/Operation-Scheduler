@@ -5,19 +5,22 @@ Operating room surgical schedules provide logistical challenges due to various c
 
 Technologies utilized: MERN strategy (Frontend React + Backend Node API structure) & HTML, CSS, JS.
 Logging is handled using `winston` on the backend.
-Database strategy is designed for Firebase integration (Firebase Admin logic structured in backend).
+Database strategy uses Firebase (`firebase.js` integrated). For local development, Express dynamically intercepts queries mocking the exact Firestore NOSQL schema.
 
 ## Project Requirements Addressed
-- **Admin & User Interface:** Modular role-based dashboards with clear functionalities.
-- **Manage Doctors & Patients:** Registration and viewing capabilities.
-- **Dynamic Scheduling System:** Allocate patients, doctors, surgeons, OTs, and surgery times appropriately.
-- **Resource Logging & Activity Tracking:** Every request is logged using `winston` for robust visibility.
+- **Admin & User Interface:** Modular role-based dashboards (`AdminDashboard`, `UserDashboard`).
+- **Account Registration:** Complete `Login.jsx` flow allowing User Registrations handling roles.
+- **Manage Network:** Doctors & Patients registration and viewing capabilities.
+- **Dynamic Scheduling System:** Extensive tracking! Assiging patients, primary surgeons, medics/assistants, anesthesiologists, anesthesia types, and involved nurses.
+- **Advanced Activity Tracking:** Reports logic including drugs, materials, pre/post operative events, and surgery remarks.
+- **Chronological Viewing:** Filter schedules historically or view upcoming future lists.
+- **Resource Logging:** Every request is logged using `winston` for robust visibility.
 - **Clean Aesthetic UI:** Modern responsive web design prioritizing clear view for crucial healthcare applications.
 
 ## System Architecture (High Level)
 1. **Frontend:** React SPA built with Vite and TailwindCSS for streamlined performance and modern aesthetics.
 2. **Backend Engine:** Express.js REST API with modular endpoints mimicking Firestore capabilities.
-3. **Database Layer:** Mock implementation mirroring Cloud Firestore structure for `doctors`, `patients`, and `schedules` collections. Ready to connect via `firebase-admin`.
+3. **Database Layer:** Mock implementation mirroring Cloud Firestore structure for `doctors`, `users`, `patients`, and `schedules` collections. Ready to connect via `firebase-admin` (configured locally `src/firebase.js`).
 4. **Logging Layer:** `winston` logger writing operational transactions to `combined.log` and `error.log`.
 
 ## Setup & Execution Workflow

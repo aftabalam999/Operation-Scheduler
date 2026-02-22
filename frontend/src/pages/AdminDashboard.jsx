@@ -3,7 +3,8 @@ import {
     Building2, Calendar, CreditCard, LayoutDashboard, Pill,
     Settings, Stethoscope, Users, Bell, Search, ChevronDown,
     MoreVertical, CheckCircle, FileText, Activity, HelpCircle,
-    Plus, Clock, UploadCloud, Edit3, Trash2, Wind
+    Plus, Clock, UploadCloud, Edit3, Trash2, Wind,
+    Phone, ArrowUpRight, ArrowDown
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -529,32 +530,163 @@ export default function AdminDashboard() {
 
                         {activeTab === 'patient' && (
                             <div className="animate-fade-in space-y-6">
-                                <div className="bg-white p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
-                                    <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><Plus className="text-emerald-500 w-5 h-5" /> Register Patient</h3>
-                                    <form onSubmit={handleAddPatient} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                        <input required placeholder="Patient Name" value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800" />
-                                        <input required placeholder="Age" type="number" value={newPatient.age} onChange={e => setNewPatient({ ...newPatient, age: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800" />
-                                        <input required placeholder="Condition" value={newPatient.condition} onChange={e => setNewPatient({ ...newPatient, condition: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800" />
-                                        <button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2">Finalize Patient</button>
-                                    </form>
+                                {/* HEADER */}
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-6">
+                                        <h2 className="text-[28px] font-bold text-slate-800">Patients List</h2>
+                                        <div className="relative w-64 hidden md:block">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input placeholder="Search Patients" className="w-full pl-11 pr-4 py-2.5 bg-slate-100 rounded-full text-sm outline-none border-none text-slate-700 font-medium placeholder:text-slate-400" />
+                                        </div>
+                                    </div>
+                                    <button className="bg-[#0f4a8a] text-white px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-blue-900 transition-colors shadow-md">
+                                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center -ml-1">
+                                            <Plus className="w-3.5 h-3.5" />
+                                        </div>
+                                        Add Patients
+                                    </button>
                                 </div>
-                                <div className="bg-white rounded-[2rem] overflow-hidden shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
-                                    <table className="w-full text-left">
-                                        <thead className="bg-[#f8fafc]">
-                                            <tr className="text-slate-400 text-xs font-semibold">
-                                                <th className="py-4 px-6 border-b border-slate-100">Patient</th>
-                                                <th className="py-4 px-6 border-b border-slate-100">Record Info</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-50 text-sm font-semibold text-slate-800">
-                                            {patients.map(p => (
-                                                <tr key={p.id}>
-                                                    <td className="py-4 px-6">{p.name}</td>
-                                                    <td className="py-4 px-6 text-slate-500 font-medium">{p.age} years | <span className="text-red-400 font-semibold">{p.condition}</span></td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+
+                                {/* STATS ROW */}
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                    <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+                                        {/* Total Patients */}
+                                        <div className="bg-[#3b82f6] text-white p-5 rounded-3xl relative shadow-[0_4px_15px_-3px_rgba(59,130,246,0.3)]">
+                                            <div className="absolute top-4 right-4 bg-white/20 px-2.5 py-1 rounded-full text-[10px] font-bold">+20%</div>
+                                            <h3 className="text-3xl font-extrabold mt-2">1,250k</h3>
+                                            <p className="text-blue-100 text-sm mt-1 font-medium">Total Patients</p>
+                                            <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-sm">
+                                                <ArrowUpRight className="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                        {/* Critical */}
+                                        <div className="bg-white p-5 rounded-3xl relative shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
+                                            <div className="absolute top-4 right-4 bg-emerald-50 text-emerald-500 px-2.5 py-1 rounded-full text-[10px] font-bold">+15%</div>
+                                            <h3 className="text-3xl font-extrabold mt-2 text-slate-800 flex items-center">
+                                                58 <div className="w-2.5 h-2.5 bg-red-500 rounded-full ml-1.5 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></div>
+                                            </h3>
+                                            <p className="text-slate-500 text-sm mt-1 font-medium">Critical</p>
+                                            <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                <ArrowUpRight className="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                        {/* Follow up */}
+                                        <div className="bg-white p-5 rounded-3xl relative shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
+                                            <div className="absolute top-4 right-4 bg-amber-50 text-amber-500 px-2.5 py-1 rounded-full text-[10px] font-bold">+6%</div>
+                                            <h3 className="text-3xl font-extrabold mt-2 text-slate-800 flex items-center">
+                                                219 <div className="w-2.5 h-2.5 bg-blue-600 rounded-full ml-1.5 shadow-[0_0_5px_rgba(37,99,235,0.5)]"></div>
+                                            </h3>
+                                            <p className="text-slate-500 text-sm mt-1 font-medium">Follow up</p>
+                                            <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                <ArrowUpRight className="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                        {/* Draft */}
+                                        <div className="bg-white p-5 rounded-3xl relative shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
+                                            <div className="absolute top-4 right-4 bg-red-50 text-red-500 px-2.5 py-1 rounded-full text-[10px] font-bold">5%</div>
+                                            <h3 className="text-3xl font-extrabold mt-2 text-slate-800 flex items-center">
+                                                23 <div className="w-2.5 h-2.5 bg-blue-400 rounded-full ml-1.5 shadow-[0_0_5px_rgba(96,165,250,0.5)]"></div>
+                                            </h3>
+                                            <p className="text-slate-500 text-sm mt-1 font-medium">Draft</p>
+                                            <div className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                <ArrowUpRight className="w-4 h-4" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Patient Status Chart */}
+                                    <div className="lg:col-span-7 bg-white rounded-3xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col min-h-[220px]">
+                                        <div className="flex justify-between items-center mb-6 z-10">
+                                            <h3 className="text-sm font-bold text-slate-800">Patients status</h3>
+                                            <button className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">Yearly <ChevronDown className="w-3 h-3" /></button>
+                                        </div>
+                                        <div className="flex-1 relative flex items-end ml-6 border-l border-slate-100">
+                                            <div className="absolute -left-6 bottom-0 top-0 flex flex-col justify-between text-[10px] text-slate-400 pb-6 items-end">
+                                                <span>100k</span><span>50k</span><span>20k</span><span>10k</span><span>0</span>
+                                            </div>
+                                            <div className="w-full h-full relative">
+                                                <svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="none" className="absolute bottom-6 left-0 w-full h-[calc(100%-1.5rem)] overflow-visible drop-shadow-[0_8px_8px_rgba(34,197,94,0.15)]">
+                                                    <path d="M0,80 L50,70 L100,60 L150,20 L200,60 L250,80 L300,50 L350,20 L400,10" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
+                                                    <path d="M0,80 L50,70 L100,60 L150,20 L200,60 L250,80 L300,50 L350,20 L400,10 L400,100 L0,100 Z" fill="rgba(34,197,94,0.1)" stroke="none" />
+                                                </svg>
+                                            </div>
+                                            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-slate-400 pl-2">
+                                                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* PATIENT CARDS GRID */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-2 pb-6">
+                                    {(patients.length > 0 ? patients : [
+                                        { name: 'Leslie Alexander', age: 24 },
+                                        { name: 'Fasai Areyanukul', age: 25 },
+                                        { name: 'Floyd', age: 24 },
+                                        { name: 'Priscilla', age: 31 },
+                                        { name: 'Kristin', age: 28 },
+                                        { name: 'Fasai Areyanukul', age: 22 }
+                                    ]).map((p, idx) => (
+                                        <div key={p.id || idx} className="bg-white rounded-3xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col relative">
+                                            <div className="flex items-center gap-4 mb-5">
+                                                <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-50 shadow-sm">
+                                                    <img src={`https://i.pravatar.cc/150?u=${p.name.replace(/\s/g, '')}`} alt={p.name} className="w-full h-full object-cover" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-slate-800 text-sm leading-tight">{p.name}</h4>
+                                                    <p className="text-[11px] font-medium text-slate-400 mt-0.5">{p.name.split(' ')[0].toLowerCase()}.company@example.com</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-2 mb-6">
+                                                <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-500 rounded-full text-[10px] font-bold hover:bg-blue-100 transition-colors">
+                                                    <Phone className="w-3 h-3" /> Phone
+                                                </button>
+                                                <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-500 rounded-full text-[10px] font-bold hover:bg-blue-100 transition-colors">
+                                                    <Activity className="w-3 h-3" /> Live Vital
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3.5 text-xs mb-4">
+                                                <div className="flex justify-between items-center border-b border-slate-50 pb-2.5">
+                                                    <span className="text-slate-500 font-medium tracking-wide">Gender, Age</span>
+                                                    <span className="text-slate-800 font-bold">{idx % 2 === 0 ? 'Female' : 'Male'}, {p.age || 25}y</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-slate-50 pb-2.5">
+                                                    <span className="text-slate-500 font-medium tracking-wide">Physician</span>
+                                                    <span className="text-slate-800 font-bold">{['Ronald', 'Cameron', 'Brandon', 'Francisco', 'Harold', 'Kathryn'][idx % 6]}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-slate-50 pb-2.5">
+                                                    <span className="text-slate-500 font-medium tracking-wide">Last Consultation</span>
+                                                    <span className="text-slate-800 font-bold">{['May 12, 2019', 'May 20, 2015', 'September 24, 2017', 'February 29, 2012', 'March 6, 2018', 'November 28, 2015'][idx % 6]}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center border-b border-slate-50 pb-2.5">
+                                                    <span className="text-slate-500 font-medium tracking-wide">Appointments</span>
+                                                    <span className="text-slate-800 font-bold">15 May 2020 {8 + (idx % 2)}:{idx % 2 === 0 ? '00' : '30'} am</span>
+                                                </div>
+                                                <div className="flex justify-between items-center pt-1">
+                                                    <span className="text-slate-500 font-medium tracking-wide">Status</span>
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${idx % 3 === 0 ? 'text-purple-600 bg-purple-50' : (idx % 2 === 1 ? 'text-emerald-600 bg-emerald-50' : 'text-blue-600 bg-blue-50')}`}>
+                                                        {idx % 3 === 0 ? 'Under Observation' : (idx % 2 === 1 ? 'Recovered' : 'Under Treatment')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-[#3b82f6] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 cursor-pointer transition-transform">
+                                                <ArrowDown className="w-3.5 h-3.5" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* QUICK REGISTER FORM (Moved to bottom) */}
+                                <div className="mt-8 bg-white p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] border border-slate-100">
+                                    <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">Quick Register Patient</h3>
+                                    <form onSubmit={handleAddPatient} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <input required placeholder="Patient Name" value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:border-blue-500 focus:ring-blue-100 outline-none" />
+                                        <input required placeholder="Age" type="number" value={newPatient.age} onChange={e => setNewPatient({ ...newPatient, age: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:border-blue-500 focus:ring-blue-100 outline-none" />
+                                        <input required placeholder="Condition" value={newPatient.condition} onChange={e => setNewPatient({ ...newPatient, condition: e.target.value })} className="w-full px-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:border-blue-500 focus:ring-blue-100 outline-none" />
+                                        <button type="submit" className="bg-[#0f4a8a] hover:bg-blue-900 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2">Finalize</button>
+                                    </form>
                                 </div>
                             </div>
                         )}

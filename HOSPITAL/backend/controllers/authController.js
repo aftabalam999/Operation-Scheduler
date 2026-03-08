@@ -43,6 +43,7 @@ exports.registerUser = async (req, res) => {
                 contactNumber,
             });
 
+            
             res.status(201).json({
                 _id: user.id,
                 name: user.name,
@@ -54,6 +55,7 @@ exports.registerUser = async (req, res) => {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
+
         res.status(500).json({ message: error.message });
     }
 };

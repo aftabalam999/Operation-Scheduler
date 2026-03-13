@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, Eye, EyeOff, Activity, ArrowRight, UserPlus } from 'lucide-react';
+import api from '../api';
 
 // --- Demo user database (simulates backend lookup) ---
 // In production these come from MongoDB via /api/auth/login
@@ -30,83 +31,53 @@ export default function Login({ onLogin }) {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // Helper: load all registered users from localStorage
-    const getRegisteredUsers = () => {
-        try {
-            return JSON.parse(localStorage.getItem('ot_registered_users') || '[]');
-        } catch { return []; }
-    };
-
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         if (!email || !password) { setError('Please enter your email and password.'); return; }
 
         setLoading(true);
-        setTimeout(() => {
+        try {
+            const res = await api.post('/api/auth/login', { email, password });
+            const data = res.data;
+            if (data.token) {
+                localStorage.setItem('ot_auth_token', data.token);
+            }
+            onLogin({ name: data.name, email: data.email, role: data.role, patientId: data.patientId || null });
+        } catch (err) {
+            setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+        } finally {
             setLoading(false);
-
-            // First check hardcoded demo users
-            let user = DEMO_USERS.find(
-                u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-            );
-
-            // Then check localStorage-registered users
-            if (!user) {
-                const registered = getRegisteredUsers();
-                user = registered.find(
-                    u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-                );
-            }
-
-            if (user) {
-                onLogin({ name: user.name, email: user.email, role: user.role, patientId: user.patientId || null });
-            } else {
-                setError('Invalid email or password. Please try again.');
-            }
-        }, 1000);
+        }
     };
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setError('');
         if (!name || !email || !password || !confirmPassword) { setError('Please fill in all fields.'); return; }
         if (password !== confirmPassword) { setError('Passwords do not match.'); return; }
         if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
 
-        // Check for duplicate email in demo users
-        const alreadyDemo = DEMO_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-        if (alreadyDemo) { setError('An account with this email already exists.'); return; }
-
-        // Check for duplicate email in registered users
-        const registered = getRegisteredUsers();
-        const alreadyRegistered = registered.find(u => u.email.toLowerCase() === email.toLowerCase());
-        if (alreadyRegistered) { setError('An account with this email already exists.'); return; }
-
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-
-            // Save new user to localStorage with default 'Patient' role
-            const newUser = {
+        try {
+            await api.post('/api/auth/register', {
                 name: name.trim(),
                 email: email.trim().toLowerCase(),
                 password,
-                role: 'Patient',
-                patientId: null,
-                joinedOn: new Date().toISOString().split('T')[0],
-            };
-            const updatedList = [...registered, newUser];
-            localStorage.setItem('ot_registered_users', JSON.stringify(updatedList));
+                role: 'Patient'
+            });
 
             // Redirect to login with success message and pre-fill email
             setSuccess('Account created! You have been registered as a Patient. You can now log in.');
             setView('login');
-            setEmail(newUser.email);  // pre-fill email so user can log in immediately
             setPassword('');
             setName('');
             setConfirmPassword('');
-        }, 1000);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error creating account. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
